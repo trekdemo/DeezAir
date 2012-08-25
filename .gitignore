@@ -1,2 +1,7 @@
+.actionScriptProperties
+.project
+.settings/
+
 /bin
+
 /src/deezair/core/DeezerCredentials.as
