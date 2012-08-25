@@ -16,7 +16,7 @@ package {
       removeEventListener( Event.ADDED_TO_STAGE, addedToStage );
       trace( ">> Added to stage" );
 
-      var track:Track = new Track();
+      var track:Track = Track.find( 3135556 );
       trace( track );
     }
 

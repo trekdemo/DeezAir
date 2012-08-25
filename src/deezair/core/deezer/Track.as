@@ -1,11 +1,16 @@
 package deezair.core.deezer {
 
+  import deezair.core.Deezer;
   import deezair.core.deezer.BaseEntity;
+
+  import flash.net.URLLoader;
 
   public class Track extends BaseEntity {
 
+    public static const END_POINT : String = Deezer.API_BASE + 'track/';
+
+
     // = API == http://developers.deezer.com/api/track =========================
-    protected var _id             : int;     // The track's Deezer id
     protected var _readable       : Boolean; // true if the track is readable in the player for the current user
     protected var _title          : String;  // The track's title
     protected var _link           : String;  // The url of the track on Deezer
@@ -18,15 +23,11 @@ package deezair.core.deezer {
     protected var _artist         : Object;  // artist object containing : id, name, link, picture, nb_album, nb_fan, radio
     protected var _album          : Object;  // album object containing : id, title, link, cover, genre_id, label, duration, fans, rating, release_date
 
-    private   var _artistObject     : Artist;
-    private   var _albumObject      : Album;
+    private   var _artistObject   : Artist;  // Object reference for the Artist of the track
+    private   var _albumObject    : Album;   // Object reference for the Album of the track
 
-    public function Track() { }
+    public function Track( id : int ) { super( id ); }
 
-    // = STATICTIC FUNCTIONS ===================================================
-    public static function fromJSON( json:Object ):Track {
-      return new Track();
-    }
 
     // = PROPERTIES ============================================================
     public function get id()            : int     { return _id; }
@@ -39,19 +40,34 @@ package deezair.core.deezer {
     public function get rank()          : int     { return _rank; }
     public function get releasjDate()   : Date    { return _release_date; }
     public function get preview()       : String  { return _preview; }
+    public override function get entityURL()     : String  { return END_POINT + id.toString(); }
 
     public function get album() : Album {
       if ( !_albumObject ) {
-        _albumObject = Album.fromJSON( _album );
+        //_albumObject = Album.fromJSON( _album );
       }
       return _albumObject;
     }
 
     public function get artist() : Artist {
       if ( !_artistObject ) {
-        _artistObject = Artist.fromJSON( _artist );
+        //_artistObject = Artist.fromJSON( _artist );
       }
       return _artistObject;
+    }
+
+
+    // = STATICTIC FUNCTIONS ===================================================
+    public static function find( id : int ): Track {
+      var track : Track = new Track( id );
+      track.load();
+      return track;
+    }
+
+
+    // = INSTANCE FUNCTIONS ====================================================
+    protected override function fromJSON( json:Object ):BaseEntity {
+      return this;
     }
 
   }

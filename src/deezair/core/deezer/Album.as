@@ -4,7 +4,6 @@ package deezair.core.deezer {
 
   public class Album extends BaseEntity {
 
-    protected var _id           : int     // The album's Deezer id
     protected var _title        : String  // The album's title
     protected var _link         : String  // The url of the album on Deezer
     protected var _cover        : String  // The url of the album's cover. Add 'size' parameter to the url to change size. Can be 'small', 'medium', 'big'
@@ -16,12 +15,7 @@ package deezair.core.deezer {
     protected var _artist       : Object  // artist object containing : id, name
     protected var _tracks       : Array   // list of track
 
-    public function Album() {
-    }
-
-    public static function fromJSON( json:Object ):Album {
-      return new Album();
-    }
+    public function Album( id : int ) { super( id ); }
 
   }
 }
