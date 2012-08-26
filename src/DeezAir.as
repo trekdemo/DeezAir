@@ -1,8 +1,10 @@
 package {
-  import flash.display.Sprite;
-  import flash.events.Event;
   import deezair.core.Deezer;
   import deezair.core.deezer.*;
+  import deezair.core.events.EntityEvent;
+  
+  import flash.display.Sprite;
+  import flash.events.Event;
 
   public class DeezAir extends Sprite {
 
@@ -17,8 +19,12 @@ package {
       trace( ">> Added to stage" );
 
       var track:Track = Track.find( 3135556 );
-      trace( track );
+	  track.addEventListener( EntityEvent.LOADED, onTrackLoaded );
     }
+	
+	protected function onTrackLoaded( event:EntityEvent ):void {
+		trace( event.target );
+	}
 
   }
 }

@@ -1,5 +1,7 @@
 package deezair.core.deezer {
 
+  import deezair.core.events.EntityEvent;
+  
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.IOErrorEvent;
@@ -10,16 +12,25 @@ package deezair.core.deezer {
   public class BaseEntity extends EventDispatcher {
 
     protected var _id             : int;     // The object's Deezer id
-    private   var _loaded         : Boolean = false;
+    protected var _attributes     : Object   // Object containing the fields of the object
+    protected var _loaded         : Boolean = false;
 
-    public function BaseEntity( id : int ) {
-      _id = id;
+    public function BaseEntity( attributes:Object = null ) {
+	  if( attributes ) {
+        _id         = attributes['id'];
+	    _attributes = attributes;
+	  } else {
+		_id = NaN;
+		_attributes = new Object();
+	  }
     }
 
 
     // = PROPERTIES ============================================================
-    public function get isLoaded()  : Boolean { return _loaded; }
-    public function get entityURL() : String  { throw new Error( 'Not implemented' ); }
+    public function get id()         : int     { return _id; }
+    public function get isLoaded()   : Boolean { return _loaded; }
+    public function get attributes() : Object  { return _attributes; }
+    public function get entityURL()  : String  { throw new Error( 'Not implemented' ); }
 
 
     // = STATICTIC FUNCTIONS ===================================================
@@ -31,17 +42,16 @@ package deezair.core.deezer {
       loader.addEventListener( IOErrorEvent.IO_ERROR, delegate.requestError );
       loader.addEventListener( SecurityErrorEvent.SECURITY_ERROR, delegate.requestError );
 
-	  return loader;
-    }
-
-    public static function fromJSON( json : Object ):Object {
-      throw new Error( 'Not implemented' );
+      return loader;
     }
 
 
     // = INSTANCE FUNCTIONS ====================================================
-    protected function fromJSON( json:Object ):BaseEntity {
-      throw new Error( 'Not implemented' );
+    protected function fromJSON( json:String ):BaseEntity {
+      _attributes = JSON.parse( json );
+      _id         = _attributes['id'];
+
+      return this;
     }
 
     public function load():void {
@@ -49,17 +59,18 @@ package deezair.core.deezer {
     }
 
     public function reload():void {
+      _loaded = false;
+	  _attributes ||= new Object();
       var loader : URLLoader = createRequest( this );
       loader.load( new URLRequest( entityURL ) );
     }
 
 
     // = EVENT HANDLERS ========================================================
-    protected function requestComplete( event : Event ):* {
-      trace( event );
-      trace( event.target.data );
+    protected function requestComplete( event : Event ):void {
       _loaded = true;
       this.fromJSON( event.target.data );
+      this.dispatchEvent( new EntityEvent( EntityEvent.LOADED, this ) );
     }
 
     protected function requestError( event : Event ):* {
