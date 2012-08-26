@@ -3,11 +3,16 @@ package deezair.core.deezer {
   import deezair.core.Deezer;
   import deezair.core.deezer.BaseEntity;
   
+  import flash.events.Event;
   import flash.net.URLLoader;
+  import flash.net.URLRequest;
+  
+  import mx.collections.ArrayList;
 
   public class Track extends BaseEntity {
 
-    public static const END_POINT : String = Deezer.API_BASE + 'track/';
+    public static const ENDPOINT : String = Deezer.API_BASE + 'track/';
+    public static const SEARCH_ENDPOINT:String = Deezer.API_BASE + 'search/track/?q=';
 
     private   var _artistObject   : Artist;  // Object reference for the Artist of the track
     private   var _albumObject    : Album;   // Object reference for the Album of the track
@@ -27,7 +32,7 @@ package deezair.core.deezer {
     public function get preview()       : String  { return attributes['preview']; }
 
     public override function get entityURL():String  {
-      return END_POINT + id.toString();
+      return ENDPOINT + id.toString();
     }
 
     public function get artistName():String  {
@@ -60,8 +65,21 @@ package deezair.core.deezer {
       return track;
     }
 
-    public static function search( query:String ):Array {
-      return new Array();
+    public static function searchPath( query:String ):String {
+      return SEARCH_ENDPOINT + query;
+    }
+    public static function search( query:String ):void {
+      var loader:URLLoader = new URLLoader();
+      var req:URLRequest = new URLRequest( searchPath( query ) );
+      loader.addEventListener( flash.events.Event.COMPLETE, function(e:Event):void {
+        var json:Object = JSON.parse( e.target.data );
+        var tracks:ArrayList = DeezAirBase.instance.tracks;
+        tracks.removeAll();
+        for each( var t:Object in json['data'] ) {
+          tracks.addItem( new Track( t ) );
+        }
+      });
+      loader.load(req);
     }
 
     // = INSTANCE FUNCTIONS ====================================================
